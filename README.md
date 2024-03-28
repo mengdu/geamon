@@ -2,6 +2,8 @@
 
 A library used create background service for golang
 
+> Windows not supported!!
+
 ```sh
 go get github.com/mengdu/geamon
 ```

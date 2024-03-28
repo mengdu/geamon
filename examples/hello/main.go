@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/mengdu/geamon"
@@ -33,21 +35,26 @@ func main() {
 	if err := os.MkdirAll("./logs", 0777); err != nil {
 		panic(err)
 	}
-	file, err := os.OpenFile("./logs/deamon.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	file, err := os.OpenFile("./logs/hellod.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		panic(err)
 	}
-	deamon := geamon.Geamon{
-		Stdout:     file,
-		Stderr:     file,
-		MaxRestart: 3,
-		// PidFile:    "/var/run/hello.pid",
-		DeamonName: "hellod",
+
+	backd := geamon.Geamon{
+		Stdout: file,
+		Stderr: file,
+		// PidFile:      "/var/run/hello.pid",
+		PidFile:      "./logs/pid/hello.pid",
+		ProcessTitle: "hellod",
 	}
-	if err := deamon.Run(); err != nil {
+	if err := backd.Run(); err != nil {
 		panic(err)
 	}
-
+	defer backd.ReleasePidFile()
 	mylog := log.New(file, fmt.Sprintf("[%d]", os.Getpid()), log.Ldate|log.Lmicroseconds|log.Lshortfile)
-	RunWorker(mylog)
+	go RunWorker(mylog)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
 }

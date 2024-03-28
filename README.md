@@ -1,6 +1,6 @@
 # Geamon
 
-A library used create daemon for golang
+A library used create background service for golang
 
 ```sh
 go get github.com/mengdu/geamon
@@ -24,16 +24,17 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	deamon := geamon.Geamon{
+	backd := geamon.Geamon{
 		Stdout: file,
 		Stderr: file,
-		MaxRestart: 3,
-		PidFile: "/var/run/hello.pid",
+		PidFile: "./logs/pid/hello.pid",
+		ProcessTitle: "hellod",
 	}
-	if err := deamon.Run(); err != nil {
+	if err := backd.Run(); err != nil {
 		panic(err)
 	}
+	defer backd.ReleasePidFile()
 
-  // do blocked services
+	// do blocked services
 }
 ```

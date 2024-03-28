@@ -7,8 +7,13 @@ import (
 )
 
 func fork(stdout io.Writer, stderr io.Writer, env []string) (*exec.Cmd, error) {
+	argv0, err := os.Executable()
+	if err != nil {
+		return nil, err
+	}
+	os.Args[0] = argv0
 	cmd := &exec.Cmd{
-		Path: os.Args[0],
+		Path: argv0,
 		Args: os.Args,
 	}
 

@@ -22,12 +22,13 @@ type Geamon struct {
 }
 
 func (g *Geamon) _init() error {
-	_, err := fork(g.Stdout, g.Stderr, []string{fmt.Sprintf("%s=%d", _INIT_ENV_KEY, 1)})
+	cmd, err := fork(g.Stdout, g.Stderr, []string{fmt.Sprintf("%s=%d", _INIT_ENV_KEY, 1)})
 	if err != nil {
 		return err
 	}
 
-	g.Stdout.Write([]byte("Background mode initializing...\n"))
+	g.Stdout.Write([]byte(fmt.Sprintf("exec: %s\n", strings.Join(cmd.Args, " "))))
+	g.Stdout.Write([]byte("background mode initializing...\n"))
 	os.Exit(0)
 	return nil
 }
@@ -103,5 +104,6 @@ func (g *Geamon) Run() error {
 		gspt.SetProcTitle(title)
 	}
 	g._writePidFile()
+	g.Stdout.Write([]byte("successfully started\n"))
 	return nil
 }
